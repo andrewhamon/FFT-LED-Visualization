@@ -9,4 +9,4 @@ Just run the sketch, and play music. It uses whatever the system default line in
 
 I have yet to implement the arduino side of things but I made a "Strip" class which acts as a crude on screen simulation of the LED strip for testing purposes.
 
-Currently the main loop blocks until it detects a change in the FFT, so without music playing the screen should freeze.
+Currently the main loop blocks until it detects a change in the FFT, so without music playing the screen should freeze
