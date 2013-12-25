@@ -11,12 +11,17 @@ class Strip{
   
   color[] colors;
   float[][] centers;
-  
+
+
+  //Draws led strip from (x0, y0) to (x1, y1)
   Strip(int stripLength, float ledSize, float x0, float y0, float x1, float y1){
+
+    //Catches too large a daimeter or picks a defualt if left at 0
     float lineLength = sqrt(sq(x1-x0) + sq(y1-y0));
     if(ledSize == 0 || ledSize > lineLength/(stripLength-1)){
       ledSize = lineLength/(stripLength-1);
-    } 
+    }
+
     numLeds = stripLength;
     diameter = ledSize;
     xstart = x0;
@@ -28,25 +33,32 @@ class Strip{
     colors = new color[numLeds];
     centers = new float[numLeds][2];
     
+    //Finds centers of each LED
     for(int i = 0; i < numLeds; i++){
       centers[i][0] = (xstart + (xlength/(numLeds-1))*i);
       centers[i][1] = (ystart + (ylength/numLeds)*i);
     }
   }
+
+    //Sets color of an individual LED
     public void setColor(int led, color c){
       colors[led] = c;
     }
     
+    //Resets all colors to off (black)
     public void clearStrip(){
       for(int i = 0; i < numLeds; i++){
         colors[i] = color(0);
       }
     }
     
+    //Retrieves color (of type Color) of an indifidual LED
+    //Use red(stripName.getColor(i)) to get red value, etc.
     public color getColor(int led){
       return colors[led];
     }
     
+    //Draws the strip to the window
     public void draw(){
       noStroke();
       for(int i = 0; i < numLeds; i++){

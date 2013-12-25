@@ -1,8 +1,6 @@
 class Histogram{
-  
-  float[] mx;
   float[][] corners;
-  int size_;
+  int size_; //avoid naming things the same as built in functions
   float barWidth;
   float xstart;
   float ystart;
@@ -15,14 +13,13 @@ class Histogram{
   float xdir;
   float ydir;
   
-  float sign;
-  
   float scaleFactor;
 
   History timeAvg;
   
   Histogram(float x0, float y0, float x1, float y1, int numBands, float scale, int historyLength){
-    mx = new float[numBands];
+
+    //For bottom left corner of each bar
     corners = new float[numBands][2];
     
     size_ = numBands;
@@ -113,8 +110,6 @@ class HistogramWeb{
   float xdir;
   float ydir;
   
-  float sign;
-  
   float scaleFactor;
 
   History timeAvg;
@@ -197,9 +192,6 @@ class HistogramWeb{
         points[i][0] = scaleFactor*timeAvg.getAvg(i)*xdir + corners[i][0];
         points[i][1] = scaleFactor*timeAvg.getAvg(i)*ydir + corners[i][1];
         if(i != 0){
-          // line(points[i-1][0], points[i-1][1], points[i][0], points[i][1]);
-          // fill(hue, 255, 255, 16*timeAvg.getAvg(i-1));
-          // vertex(points[i-1][0] + barWidth/2.0, points[i-1][1]);
           stroke(hue, 32*timeAvg.getAvg(i), 255);
           fill(hue, 255, 255, 10*timeAvg.getAvg(i));
           vertex(points[i][0] + barWidth/2.0, points[i][1]);
