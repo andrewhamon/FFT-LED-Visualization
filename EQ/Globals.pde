@@ -2,6 +2,8 @@ Minim minim;
 AudioInput in;
 FFT fft;
 
+Serial arduinoLED;
+
 int ledStripLength;
 
 Strip myStrip1;

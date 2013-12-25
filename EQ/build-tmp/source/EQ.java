@@ -5,6 +5,7 @@ import processing.opengl.*;
 
 import ddf.minim.*; 
 import ddf.minim.analysis.*; 
+import processing.serial.*; 
 
 import java.util.HashMap; 
 import java.util.ArrayList; 
@@ -17,7 +18,10 @@ import java.io.IOException;
 
 public class EQ extends PApplet {
 
+//For audio buffers and FFT
 
+
+//For Arduino communication via serial
 
 
 //See Globals.pde for list of global variables used
@@ -184,29 +188,11 @@ public void mouseWheel(MouseEvent event) {
 
 
 //Work in progress
-class spectrum{
-  float[] prev;
-  float[] current;
-
-  spectrum(int specSize){
-    current = new float[specSize];
-    prev = new float[specSize];
-  }
-
-  public boolean isNew(float[] tmpcurrent){
-    boolean newData = false;
-    for(int i = 0; i < prev.length; i++){
-      if(tmpcurrent[i] != prev[i]){
-        newData = true;
-      }
-      prev[i] = tmpcurrent[i];
-      }
-      return newData;
-    }
-  }
 Minim minim;
 AudioInput in;
 FFT fft;
+
+Serial arduinoLED;
 
 int ledStripLength;
 
@@ -536,32 +522,49 @@ class Strip{
     }
   }
 
-    //Sets color of an individual LED
-    public void setColor(int led, int c){
-      colors[led] = c;
+  //Sets color of an individual LED
+  public void setColor(int led, int c){
+    colors[led] = c;
+  }
+  
+  //Resets all colors to off (black)
+  public void clearStrip(){
+    for(int i = 0; i < numLeds; i++){
+      colors[i] = color(0);
     }
-    
-    //Resets all colors to off (black)
-    public void clearStrip(){
-      for(int i = 0; i < numLeds; i++){
-        colors[i] = color(0);
-      }
+  }
+  
+  //Retrieves color (of type Color) of an indifidual LED
+  //Use red(stripName.getColor(i)) to get red value, etc.
+  public int getColor(int led){
+    return colors[led];
+  }
+  
+  //Draws the strip to the window
+  public void draw(){
+    noStroke();
+    for(int i = 0; i < numLeds; i++){
+      fill(colors[i]);
+      ellipse(centers[i][0], centers[i][1], diameter, diameter);
     }
-    
-    //Retrieves color (of type Color) of an indifidual LED
-    //Use red(stripName.getColor(i)) to get red value, etc.
-    public int getColor(int led){
-      return colors[led];
+  }
+
+  public void arduinoWrite(Serial mySerial){
+    //254 because the full byte 255 is sent to indicate end of frame transmission
+    colorMode(RGB, 254, 254, 254);
+    byte r;
+    byte g;
+    byte b;
+    for(int i = 0; i < numLeds; i++){
+      r = PApplet.parseByte(red(colors[i]));
+      g = PApplet.parseByte(blue(colors[i]));
+      b = PApplet.parseByte(green(colors[i]));
+      mySerial.write(r);
+      mySerial.write(g);
+      mySerial.write(b);
     }
-    
-    //Draws the strip to the window
-    public void draw(){
-      noStroke();
-      for(int i = 0; i < numLeds; i++){
-        fill(colors[i]);
-        ellipse(centers[i][0], centers[i][1], diameter, diameter);
-      }
-    }
+    mySerial.write(PApplet.parseByte(255)); //Signal to arduino that all data for current frame has been sent
+  }
 }
   static public void main(String[] passedArgs) {
     String[] appletArgs = new String[] { "EQ" };

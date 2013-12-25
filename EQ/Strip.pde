@@ -40,30 +40,47 @@ class Strip{
     }
   }
 
-    //Sets color of an individual LED
-    public void setColor(int led, color c){
-      colors[led] = c;
+  //Sets color of an individual LED
+  public void setColor(int led, color c){
+    colors[led] = c;
+  }
+  
+  //Resets all colors to off (black)
+  public void clearStrip(){
+    for(int i = 0; i < numLeds; i++){
+      colors[i] = color(0);
     }
-    
-    //Resets all colors to off (black)
-    public void clearStrip(){
-      for(int i = 0; i < numLeds; i++){
-        colors[i] = color(0);
-      }
+  }
+  
+  //Retrieves color (of type Color) of an indifidual LED
+  //Use red(stripName.getColor(i)) to get red value, etc.
+  public color getColor(int led){
+    return colors[led];
+  }
+  
+  //Draws the strip to the window
+  public void draw(){
+    noStroke();
+    for(int i = 0; i < numLeds; i++){
+      fill(colors[i]);
+      ellipse(centers[i][0], centers[i][1], diameter, diameter);
     }
-    
-    //Retrieves color (of type Color) of an indifidual LED
-    //Use red(stripName.getColor(i)) to get red value, etc.
-    public color getColor(int led){
-      return colors[led];
+  }
+
+  public void arduinoWrite(Serial mySerial){
+    //254 because the full byte 255 is sent to indicate end of frame transmission
+    colorMode(RGB, 254, 254, 254);
+    byte r;
+    byte g;
+    byte b;
+    for(int i = 0; i < numLeds; i++){
+      r = byte(red(colors[i]));
+      g = byte(blue(colors[i]));
+      b = byte(green(colors[i]));
+      mySerial.write(r);
+      mySerial.write(g);
+      mySerial.write(b);
     }
-    
-    //Draws the strip to the window
-    public void draw(){
-      noStroke();
-      for(int i = 0; i < numLeds; i++){
-        fill(colors[i]);
-        ellipse(centers[i][0], centers[i][1], diameter, diameter);
-      }
-    }
+    mySerial.write(byte(255)); //Signal to arduino that all data for current frame has been sent
+  }
 }

@@ -1,5 +1,8 @@
+//For audio buffers and FFT
 import ddf.minim.*;
 import ddf.minim.analysis.*;
+//For Arduino communication via serial
+import processing.serial.*;
 
 //See Globals.pde for list of global variables used
 
