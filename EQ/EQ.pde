@@ -73,7 +73,7 @@ void draw(){
    // Perform a fourier transformation on the mix channel (L and R combined)
    // checks if current FFT is same or different than previous
    // if new, updates values of currentSpec[] and exits loop
-   // blocks main loop indefinitely if no audio
+   // loopCount prevents blocking for too long
    needUpdate = false;
    while(!needUpdate && loopCount < 1000){
     fft.forward(in.mix);
