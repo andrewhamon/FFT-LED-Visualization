@@ -7,10 +7,10 @@ It also displays a live histogram and a simulation of the LED strip.
 Seup
 =====================
 
-1.) Verify that ledStripLength in EQ.pde (in setup()), stripLength in Reciever.ino, and the length of your actual LED strip are all in agreement.
-2.) Upload Reciever.ino to your arduino; attach your LED strip to pin 6.
-3.) Make sure the corrent Serial port is selected in EQ.pde (in setup()). Currently it is set to "dev/tty.usbmodem1421"
-4.) Run both sketches!
+1. Verify that ledStripLength in EQ.pde (in setup()), stripLength in Reciever.ino, and the length of your actual LED strip are all in agreement.
+2. Upload Reciever.ino to your arduino; attach your LED strip to pin 6.
+3. Make sure the corrent Serial port is selected in EQ.pde (in setup()). Currently it is set to "dev/tty.usbmodem1421"
+4. Run both sketches!
 
 If the sketch fails to connect to the specified serial port, it will still run as normal.
 
