@@ -30,3 +30,5 @@ float[] currentSpec;
 float[] currentLogSpec;
 
 int loopCount;
+
+boolean serialConnected;

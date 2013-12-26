@@ -12,7 +12,15 @@ void setup() {
   size(1440, 900, P2D);
   smooth();
 
-  arduinoLED = new Serial(this, "/dev/tty.usbmodem1421", 115200);
+  try {
+    arduinoLED = new Serial(this, "/dev/tty.usbmodem1421", 115200);
+    serialConnected = true;
+  }
+  catch (Exception e) {
+    serialConnected = false;
+    
+  }
+
   
   // Starting hue is different each time program starts
   hueOffset = int(random(255));
@@ -126,7 +134,10 @@ void draw(){
   
   // Draws LED strip
   myStrip1.draw();
+
+  if(serialConnected){
   myStrip1.arduinoWrite(arduinoLED);
+}
 
   // Draws histogram
   histogram.draw();
