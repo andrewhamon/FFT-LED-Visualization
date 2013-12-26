@@ -24,3 +24,9 @@ You can controll the behavior of the LED strip by clicking in various places on 
 The current framerate is the third number displayed in the upper left corner of the screen.
 
 Because most LED strips will be too short to view all the data at once, you can "scroll" back and forth (using a scroll wheel or two finger swipe if your trackpad supports it). The default position is all the way left (showing the bass end of the spectrum) and the current position is given as the bottom number displayed in the upper left corner (the number is the number of LEDs scrolled to the right; default is 0).
+
+Copyright (c) 2013 Andrew Hamon
+
+FFT-LED-Visualization is licensed under the MIT License.  To read the full
+terms, please see the LICENSE file that should have been provided with all
+copies or substantial portions of the Software.
