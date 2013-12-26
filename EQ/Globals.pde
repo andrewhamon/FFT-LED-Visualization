@@ -28,3 +28,5 @@ boolean needUpdate;
 float[] prevSpec;
 float[] currentSpec;
 float[] currentLogSpec;
+
+int loopCount;

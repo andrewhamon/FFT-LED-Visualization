@@ -18,68 +18,76 @@ import java.io.IOException;
 
 public class EQ extends PApplet {
 
-//For audio buffers and FFT
+// For audio buffers and FFT
 
 
-//For Arduino communication via serial
+
+// For Arduino communication via serial
 
 
-//See Globals.pde for list of global variables used
+// See Globals.pde for list of global variables used
 
 
 public void setup() {
-  size(1440, 900, OPENGL);
+  size(1440, 900, P2D);
   smooth();
+
+  arduinoLED = new Serial(this, "/dev/tty.usbmodem1421", 115200);
   
-  //Starting hue is different each time program starts
+  // Starting hue is different each time program starts
   hueOffset = PApplet.parseInt(random(255));
   
-  //Initialize minim, line in, FFT class
+  // Initialize minim, line in, FFT class
   minim = new Minim(this);
-  in = minim.getLineIn(Minim.STEREO, 1024, 30720); //30720
+  in = minim.getLineIn(Minim.STEREO, 1024, 30720); // 30720
   fft = new FFT(in.bufferSize(), in.sampleRate());
 
-  //Creates log spaced averages
-  //First param is size of initial octave
-  //Second param is how many averages per octave
+  // Creates log spaced averages
+  // first param is size of initial octave
+  // second param is how many averages per octave
   fft.logAverages(11, 12);
   
-  //Initialize LED strip object for simulating Arduino LED strip
-  //See Strip.pde to examine Strip class
-  ledStripLength = fft.avgSize();
-  myStrip1 = new Strip(fft.avgSize(), 0, width/(2*ledStripLength), height-width/(2*ledStripLength), width-(width/(2*ledStripLength)), height-width/(2*ledStripLength));
+  // Initialize LED strip object for simulating Arduino LED strip
+  // See Strip.pde to examine Strip class
+  ledStripLength = 60;
+  myStrip1 = new Strip(ledStripLength, 0, width/(2*ledStripLength), height-width/(2*ledStripLength), width-(width/(2*ledStripLength)), height-width/(2*ledStripLength));
   
-  //Initialize history objects to keep various rolling averages
-  //See History.pde to examine History class
+  // Initialize history objects to keep various rolling averages
+  // See History.pde to examine History class
   fftHistory = new History(fft.specSize(), 12);
-  logHistory = new History(fft.avgSize(), 2);
-  logHistory2 = new History(fft.avgSize(), 7);
+  logHistory = new History(fft.avgSize(), 3);
+  logHistory2 = new History(fft.avgSize(), 30);
 
-  //Initialize histogram object to display histogram on screen
-  //See Histogram.pde to examine Histogram and HistogramWeb Class
-  histogram = new HistogramWeb(0.0f, 0.0f, PApplet.parseFloat(width), 0.00f, fft.avgSize(), -60.0f, 3);
+  // Initialize histogram object to display histogram on screen
+  // See Histogram.pde to examine Histogram and HistogramWeb Class
+  histogram = new HistogramWeb(0.0f, 0.0f, width, 0.00f, fft.avgSize(), -50.0f, 4);
   
-  //For convenient access throught sketch
+  // For convenient access throught sketch
   prevSpec = new float[fft.specSize()];
   currentSpec = new float[fft.specSize()];
   currentLogSpec = new float[fft.avgSize()];
   
-  //For "scrolling" the LED "window" left or right
-  //One LED Strip can't show full spectrum at a time
-  //See mouseWheel function below
+  // For "scrolling" the LED "window" left or right
+  // one LED Strip can't show full spectrum at a time
+  // see mouseWheel function below
   windowOffset = 0;
+
+  scaleMultiplier = 0;
+  expMultiplier = 0;
   
   textSize(16);
 }
 
 public void draw(){
 
-   //perform a fourier transformation on the mix channel (L and R combined)
-   //Checks if current FFT is same or different than previous
-   //If new, updates values of currentSpec[] and exits loop
-   //Blocks main loop indefinitely if no audio
+  loopCount = 0;
+
+   // Perform a fourier transformation on the mix channel (L and R combined)
+   // checks if current FFT is same or different than previous
+   // if new, updates values of currentSpec[] and exits loop
+   // blocks main loop indefinitely if no audio
    needUpdate = false;
-   while(!needUpdate){
+   while(!needUpdate && loopCount < 1000){
     fft.forward(in.mix);
     for(int i = 0; i < fft.specSize(); i++){
       currentSpec[i] = fft.getBand(i);
@@ -90,71 +98,76 @@ public void draw(){
       }
     prevSpec[i] = currentSpec[i];
     }
+    loopCount += 1;
   }
 
-  //Updates values of currentLogSpec[]
+  // Updates values of currentLogSpec[]
   for(int i = 0; i < fft.avgSize(); i++){
     currentLogSpec[i] = fft.getAvg(i);
   }
 
-  //Updates various histories
+  // Updates various histories
   fftHistory.addData(currentSpec);
   logHistory.addData(currentLogSpec);
   logHistory2.addData(currentLogSpec);
 
-  //Hue loops though color wheel with time
+  // Hue loops though color wheel with time
   hue = (hueOffset + frameCount/10)%256;
 
   // X position adjusts scale factor for all light values
   // Y position adjusts how fast light drops off
+
+  if(mousePressed){
   scaleMultiplier = 3*sq(mouseX)/PApplet.parseFloat(width);
   expMultiplier = mouseY*5/PApplet.parseFloat(height);
+}
 
-  //Updates histogram 
+  // Updates histogram 
   histogram.addData(currentLogSpec);
 
   
   colorMode(HSB, 255, 1.0f, pow(256, expMultiplier));
   for(int i = 0; i < ledStripLength; i++){
-    myStrip1.setColor(i, color(hue, 1.0f - (logHistory.getAvg(i+windowOffset)/logHistory2.getAvg(i+windowOffset) - 0.75f), scaleMultiplier*pow(logHistory.getAvg(i+windowOffset), expMultiplier)));
+    myStrip1.setColor(i, color(hue, (logHistory.getAvg(i+windowOffset)/logHistory2.getAvg(i+windowOffset) - 0.75f), scaleMultiplier*pow(logHistory.getAvg(i+windowOffset), expMultiplier)));
   }
 
   colorMode(HSB, 255, 255, 255);
   fill(hue, 255, 255);
   stroke(hue, 255, 255);
 
-  //Redraw background each frame  
+  // Redraw background each frame  
   background(0xff000000);
 
-  //Debugging
+  // Debugging
   text(scaleMultiplier, 1, 16);
   text(expMultiplier, 1, 32);
   text(frameRate, 1, 48);
   text(PApplet.parseFloat(windowOffset), 1, 64);
   
-  //Draws LED strip
+  // Draws LED strip
   myStrip1.draw();
+  myStrip1.arduinoWrite(arduinoLED);
 
-  //Draws histogram
+  // Draws histogram
   histogram.draw();
 
 }
   
  
 public void stop(){
-  //close the AudioPlayer you got from Minim.loadFile()
+  // close the AudioPlayer you got from Minim.loadFile()
   in.close();
   
   minim.stop();
  
-  //this calls the stop method that 
-  //you are overriding by defining your own
-  //it must be called so that your application 
-  //can do all the cleanup it would normally do
+  // This calls the stop method that 
+  // you are overriding by defining your own
+  // it must be called so that your application 
+  // can do all the cleanup it would normally do
   super.stop();
 }
 
-//Adjust LED "Window" using mouse wheel or trackpad scrolling
+// Adjust LED "Window" using mouse wheel or trackpad scrolling
 public void mouseWheel(MouseEvent event) {
 
   windowOffset += event.getAmount();
@@ -218,6 +231,8 @@ boolean needUpdate;
 float[] prevSpec;
 float[] currentSpec;
 float[] currentLogSpec;
+
+int loopCount;
 class Histogram{
   float[][] corners;
   int size_; //avoid naming things the same as built in functions
@@ -412,8 +427,8 @@ class HistogramWeb{
         points[i][0] = scaleFactor*timeAvg.getAvg(i)*xdir + corners[i][0];
         points[i][1] = scaleFactor*timeAvg.getAvg(i)*ydir + corners[i][1];
         if(i != 0){
-          stroke(hue, 32*timeAvg.getAvg(i), 255);
-          fill(hue, 255, 255, 10*timeAvg.getAvg(i));
+          stroke(hue, 100*timeAvg.getAvg(i), 255);
+          fill(hue, 255, 255, 15*timeAvg.getAvg(i));
           vertex(points[i][0] + barWidth/2.0f, points[i][1]);
         }
       }
@@ -550,20 +565,21 @@ class Strip{
   }
 
   public void arduinoWrite(Serial mySerial){
+    byte eof = PApplet.parseByte(254);
     //254 because the full byte 255 is sent to indicate end of frame transmission
-    colorMode(RGB, 254, 254, 254);
+    colorMode(RGB, 253, 253, 253);
     byte r;
     byte g;
     byte b;
-    for(int i = 0; i < numLeds; i++){
+    for(int i = (numLeds-1); i >= 0; i--){
       r = PApplet.parseByte(red(colors[i]));
       g = PApplet.parseByte(blue(colors[i]));
       b = PApplet.parseByte(green(colors[i]));
       mySerial.write(r);
-      mySerial.write(g);
       mySerial.write(b);
+      mySerial.write(g);
     }
-    mySerial.write(PApplet.parseByte(255)); //Signal to arduino that all data for current frame has been sent
+    mySerial.write(eof); //Signal to arduino that all data for current frame has been sent
   }
 }
   static public void main(String[] passedArgs) {

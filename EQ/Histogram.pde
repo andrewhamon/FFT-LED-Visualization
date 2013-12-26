@@ -192,8 +192,8 @@ class HistogramWeb{
         points[i][0] = scaleFactor*timeAvg.getAvg(i)*xdir + corners[i][0];
         points[i][1] = scaleFactor*timeAvg.getAvg(i)*ydir + corners[i][1];
         if(i != 0){
-          stroke(hue, 32*timeAvg.getAvg(i), 255);
-          fill(hue, 255, 255, 10*timeAvg.getAvg(i));
+          stroke(hue, 100*timeAvg.getAvg(i), 255);
+          fill(hue, 255, 255, 15*timeAvg.getAvg(i));
           vertex(points[i][0] + barWidth/2.0, points[i][1]);
         }
       }

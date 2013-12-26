@@ -21,7 +21,6 @@ void setup(){
 }
 
 void serialEvent(){
-
   while(Serial.available()){
     pinOn = !pinOn;
 
@@ -29,7 +28,7 @@ void serialEvent(){
 
     // If end-of-frame code recieved
     if(x == 254){
-      myStrip.setBrightness(64);
+      myStrip.setBrightness(64); //The LEDs are quite bright
       myStrip.show();
       // Reset counters
       k = 0;

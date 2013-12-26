@@ -60,12 +60,14 @@ void setup() {
 
 void draw(){
 
+  loopCount = 0;
+
    // Perform a fourier transformation on the mix channel (L and R combined)
    // checks if current FFT is same or different than previous
    // if new, updates values of currentSpec[] and exits loop
    // blocks main loop indefinitely if no audio
    needUpdate = false;
-   while(!needUpdate){
+   while(!needUpdate && loopCount < 1000){
     fft.forward(in.mix);
     for(int i = 0; i < fft.specSize(); i++){
       currentSpec[i] = fft.getBand(i);
@@ -76,6 +78,7 @@ void draw(){
       }
     prevSpec[i] = currentSpec[i];
     }
+    loopCount += 1;
   }
 
   // Updates values of currentLogSpec[]
