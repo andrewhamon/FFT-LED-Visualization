@@ -19,7 +19,7 @@ Usage
 
 You can controll the behavior of the LED strip by clicking in various places on the screen. The Y position of the mouse affects the light fall-off. A higher value (closer to the bottom of the screen) means only really loud parts of the spectrum get through. The X position is a scale factor that is multiplied by each value. A higher X value (more toward the right edge of he screen) makes all the LEDs brighter.
 
-**NB: The constants will only be updated when the mouse is clicked. The current value of the two constants ar the top two numbers displayed in the upper left corner of the screen.**
+**NB: The constants will only be updated when the mouse is clicked. The current value of the two constants are the top two numbers displayed in the upper left corner of the screen.**
 
 The current framerate is the third number displayed in the upper left corner of the screen.
 
