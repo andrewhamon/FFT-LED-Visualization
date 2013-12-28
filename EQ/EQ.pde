@@ -38,7 +38,7 @@ void setup() {
   // Initialize LED strip object for simulating Arduino LED strip
   // See Strip.pde to examine Strip class
   ledStripLength = 60;
-  myStrip1 = new Strip(ledStripLength, 0, width/(2*ledStripLength), height-width/(2*ledStripLength), width-(width/(2*ledStripLength)), height-width/(2*ledStripLength));
+  myStrip1 = new Strip(ledStripLength, 0, width/(2*ledStripLength), height/2.0, width-(width/(2*ledStripLength)), height/2.0);
   
   // Initialize history objects to keep various rolling averages
   // See History.pde to examine History class
@@ -48,7 +48,9 @@ void setup() {
 
   // Initialize histogram object to display histogram on screen
   // See Histogram.pde to examine Histogram and HistogramWeb Class
-  histogram = new HistogramWeb(0.0, 0.0, width, 0.00, fft.avgSize(), -50.0, 4);
+  histogram = new HistogramWeb(0.0, height/2.0 + 12, width, height/2.0 + 12, fft.avgSize(), -20.0, 3);
+  histogram2 = new HistogramWeb(0.0, height/2.0 - 12, width, height/2.0 - 12, fft.avgSize(), 20.0, 3);
+  histogramMode = true;
   
   // For convenient access throught sketch
   prevSpec = new float[fft.specSize()];
@@ -112,6 +114,7 @@ void draw(){
 
   // Updates histogram 
   histogram.addData(currentLogSpec);
+  histogram2.addData(currentLogSpec);
 
   
   colorMode(HSB, 255, 1.0, pow(256, expMultiplier));
@@ -141,6 +144,7 @@ void draw(){
 
   // Draws histogram
   histogram.draw();
+  histogram2.draw();
 
 }
   
@@ -158,6 +162,10 @@ void stop(){
   super.stop();
 }
 
+boolean sketchFullScreen() {
+  return true;
+}
+
 // Adjust LED "Window" using mouse wheel or trackpad scrolling
 void mouseWheel(MouseEvent event) {
 
@@ -167,5 +175,11 @@ void mouseWheel(MouseEvent event) {
   }
   if(windowOffset + ledStripLength > fft.avgSize()){
     windowOffset = fft.avgSize() - (ledStripLength);
+  }
+}
+
+void keyPressed() {
+  if (key == ' '){
+    histogramMode = !histogramMode;
   }
 }

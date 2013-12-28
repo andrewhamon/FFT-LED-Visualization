@@ -13,6 +13,7 @@ History logHistory;
 History logHistory2;
 
 HistogramWeb histogram;
+HistogramWeb histogram2;
 
 float scaleMultiplier;
 float expMultiplier;
@@ -32,3 +33,4 @@ float[] currentLogSpec;
 int loopCount;
 
 boolean serialConnected;
+boolean histogramMode;

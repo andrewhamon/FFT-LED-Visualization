@@ -191,18 +191,18 @@ class HistogramWeb{
         // line(corners[i][0], corners[i][1], scaleFactor*timeAvg.getAvg(i)*xdir + corners[i][0], scaleFactor*timeAvg.getAvg(i)*ydir + corners[i][1]);
         points[i][0] = scaleFactor*timeAvg.getAvg(i)*xdir + corners[i][0];
         points[i][1] = scaleFactor*timeAvg.getAvg(i)*ydir + corners[i][1];
-        if(i != 0){
-          stroke(hue, 100*timeAvg.getAvg(i), 255);
+        if((i <= windowOffset + ledStripLength && i >= windowOffset)||histogramMode){
           fill(hue, 255, 255, 15*timeAvg.getAvg(i));
+          stroke(hue, 40*timeAvg.getAvg(i), 255);
+        }
+        else{
+          fill(0,0,0,0);
+          stroke(0, 0, 90);
+        }
           vertex(points[i][0] + barWidth/2.0, points[i][1]);
         }
-      }
       fill(0, 0, 0, 0);
       vertex(xend, yend);
       endShape();
     }
-}
-
-boolean sketchFullScreen() {
-  return true;
 }
