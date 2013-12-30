@@ -6,6 +6,14 @@
 // LICENSE file, or online at http://opensource.org/licenses/MIT.
 // :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
+// :::::::::::::::::::::::: LICENSE AND COPYRIGHT NOTICE :::::::::::::::::::::::
+// Copyright (c) 2013 Andrew Hamon.  All rights reserved.
+// 
+// This file is part of FFT-LED-Visualization.  FFT-LED-Visualization is
+// distributed under the MIT License.  You can read the full terms of use in the
+// LICENSE file, or online at http://opensource.org/licenses/MIT.
+// :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
 class Histogram{
   float[][] corners;
   int size_; //avoid naming things the same as built in functions
@@ -100,88 +108,15 @@ class Histogram{
     }
 }
 
-class HistogramWeb{
+class HistogramWeb extends Histogram{
   
-  float[] max;
-  float[][] corners;
   float[][] points;
-  int size_;
-  float barWidth;
-  float xstart;
-  float ystart;
-  float xend;
-  float yend;
-  
-  float xdiff;
-  float ydiff;
-  
-  float xdir;
-  float ydir;
-  
-  float scaleFactor;
-
-  History timeAvg;
   
   HistogramWeb(float x0, float y0, float x1, float y1, int numBands, float scale, int historyLength){
-    max = new float[numBands];
-    corners = new float[numBands][2];
+
+    super(x0, y0, x1, y1, numBands, scale, historyLength);
     points = new float[numBands][2];
     
-    size_ = numBands;
-
-    timeAvg = new History(size_, historyLength);
-    
-    xstart = x0;
-    xend = x1;
-    ystart = y0;
-    yend = y1;
-    
-    xdiff = x1 - x0;
-    ydiff = y1 - y0;
-    
-    
-    barWidth = sqrt(sq(xdiff) + sq(ydiff))/numBands;
-    
-    scaleFactor = scale;
-    
-    for(int i = 0; i < numBands; i++){
-      corners[i][0] = xstart + (i*xdiff/numBands);
-      corners[i][1] = ystart + (i*ydiff/numBands);
-    }
-    
-    xdir = 0;
-    ydir = 0;
-    
-    if(xdiff == 0 && ydiff > 0){
-      xdir = -1;
-      ydir = 0;
-    }
-    if(xdiff == 0 && ydiff < 0){
-      xdir = 1;
-      ydir = 0;
-    }
-    if(xdiff > 0 && ydiff == 0){
-      xdir = 0;
-      ydir = -1;
-    }
-    if(xdiff < 0 && ydiff == 0){
-      xdir = 0;
-      ydir = 1;
-    }
-    if(xdiff != 0 && ydiff !=0){
-      if(xdiff > 0){
-        ydir = -1.0;
-      }
-      if(xdiff < 0){
-        ydir = 1.0;
-      }
-        
-      xdir = -1*ydir*ydiff/xdiff;
-    }
-    
-    float tmplength = sqrt(sq(xdir) + sq(ydir));
-    xdir /= tmplength;
-    ydir /= tmplength;
   }
     
     public void addData(float[] tmp){
