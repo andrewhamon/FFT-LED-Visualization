@@ -17,6 +17,7 @@ import processing.serial.*;
 
 
 void setup() {
+  frameRate(30);
   size(1440, 900, P2D);
   smooth();
 
@@ -58,7 +59,6 @@ void setup() {
   // See Histogram.pde to examine Histogram and HistogramWeb Class
   histogram = new HistogramWeb(0.0, height/2.0 + 12, width, height/2.0 + 12, fft.avgSize(), -20.0, 3);
   histogram2 = new HistogramWeb(0.0, height/2.0 - 12, width, height/2.0 - 12, fft.avgSize(), 20.0, 3);
-  histogramMode = true;
   
   // For convenient access throught sketch
   prevSpec = new float[fft.specSize()];
@@ -142,6 +142,7 @@ void draw(){
   text(expMultiplier, 1, 32);
   text(frameRate, 1, 48);
   text(float(windowOffset), 1, 64);
+  text(histogram2.getScale(), 1, 80);
   
   // Draws LED strip
   myStrip1.draw();
@@ -153,6 +154,7 @@ void draw(){
   // Draws histogram
   histogram.draw();
   histogram2.draw();
+  // saveFrame("######.tga");
 
 }
   
@@ -162,6 +164,8 @@ void stop(){
   in.close();
   
   minim.stop();
+
+  println("Hi");
  
   // This calls the stop method that 
   // you are overriding by defining your own
@@ -177,17 +181,27 @@ boolean sketchFullScreen() {
 // Adjust LED "Window" using mouse wheel or trackpad scrolling
 void mouseWheel(MouseEvent event) {
 
-  windowOffset += event.getAmount();
-  if(windowOffset < 0){
-    windowOffset = 0;
-  }
-  if(windowOffset + ledStripLength > fft.avgSize()){
-    windowOffset = fft.avgSize() - (ledStripLength);
+  if(keyPressed && key == CODED){
+    if(keyCode == SHIFT){
+        histogram.setScale(histogram.getScale() - 3*event.getAmount());
+        histogram2.setScale(histogram2.getScale() + 3*event.getAmount());
+      }
+    }
+  else{
+
+    windowOffset += event.getAmount();
+    if(windowOffset < 0){
+      windowOffset = 0;
+    }
+    if(windowOffset + ledStripLength > fft.avgSize()){
+      windowOffset = fft.avgSize() - (ledStripLength);
+    }
   }
 }
 
 void keyPressed() {
   if (key == ' '){
-    histogramMode = !histogramMode;
+    histogram.changeMode();
+    histogram2.changeMode();
   }
 }
