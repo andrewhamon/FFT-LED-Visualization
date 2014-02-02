@@ -25,12 +25,16 @@ HistogramWeb histogram2;
 
 float scaleMultiplier;
 float expMultiplier;
+float xpos;
+float ypos;
 
 long hue;
 
 long hueOffset;
 
 int windowOffset;
+
+UDP udp;
 
 boolean needUpdate;
 

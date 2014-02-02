@@ -13,6 +13,9 @@ import ddf.minim.analysis.*;
 // For Arduino communication via serial
 import processing.serial.*;
 
+// For UDP
+import hypermedia.net.*;
+
 // See Globals.pde for list of global variables used
 
 
@@ -22,13 +25,15 @@ void setup() {
   smooth();
 
   try {
-    arduinoLED = new Serial(this, "/dev/tty.usbmodem1421", 115200);
+    arduinoLED = new Serial(this, "/dev/tty.usbmodem1411", 115200);
     serialConnected = true;
   }
   catch (Exception e) {
     serialConnected = false;
     
   }
+
+  udp = new UDP( this, 6000 );
 
   
   // Starting hue is different each time program starts
@@ -47,18 +52,22 @@ void setup() {
   // Initialize LED strip object for simulating Arduino LED strip
   // See Strip.pde to examine Strip class
   ledStripLength = 60;
-  myStrip1 = new Strip(ledStripLength, 0, width/(2*ledStripLength), height/2.0, width-(width/(2*ledStripLength)), height/2.0);
+  myStrip1 = new Strip(
+    ledStripLength, 0, width/(2*ledStripLength), height/2.0,
+    width-(width/(2*ledStripLength)), height/2.0);
   
   // Initialize history objects to keep various rolling averages
   // See History.pde to examine History class
   fftHistory = new History(fft.specSize(), 12);
   logHistory = new History(fft.avgSize(), 3);
-  logHistory2 = new History(fft.avgSize(), 30);
+  logHistory2 = new History(fft.avgSize(), 50);
 
   // Initialize histogram object to display histogram on screen
   // See Histogram.pde to examine Histogram and HistogramWeb Class
-  histogram = new HistogramWeb(0.0, height/2.0 + 12, width, height/2.0 + 12, fft.avgSize(), -20.0, 3);
-  histogram2 = new HistogramWeb(0.0, height/2.0 - 12, width, height/2.0 - 12, fft.avgSize(), 20.0, 3);
+  histogram = new HistogramWeb(
+    0.0, height/2.0 + 12, width, height/2.0 + 12, fft.avgSize(), -20.0, 3);
+  histogram2 = new HistogramWeb(
+    0.0, height/2.0 - 12, width, height/2.0 - 12, fft.avgSize(), 20.0, 3);
   
   // For convenient access throught sketch
   prevSpec = new float[fft.specSize()];
@@ -72,6 +81,8 @@ void setup() {
 
   scaleMultiplier = 0;
   expMultiplier = 0;
+  xpos = 0.0;
+  ypos = 0.0;
   
   textSize(16);
 }
@@ -116,6 +127,8 @@ void draw(){
   // Y position adjusts how fast light drops off
 
   if(mousePressed){
+  xpos = mouseX;
+  ypos = mouseY;
   scaleMultiplier = 3*sq(mouseX)/float(width);
   expMultiplier = mouseY*5/float(height);
 }
@@ -126,8 +139,19 @@ void draw(){
 
   
   colorMode(HSB, 255, 1.0, pow(256, expMultiplier));
-  for(int i = 0; i < ledStripLength; i++){
-    myStrip1.setColor(i, color(hue, (logHistory.getAvg(i+windowOffset)/logHistory2.getAvg(i+windowOffset) - 0.75), scaleMultiplier*pow(logHistory.getAvg(i+windowOffset), expMultiplier)));
+  if(fft.avgSize()>=ledStripLength){
+    for(int i = 0; i < ledStripLength; i++){
+      myStrip1.setColor(i, color(hue, (
+        logHistory.getAvg(i+windowOffset)/logHistory2.getAvg(i+windowOffset)-0.75),
+        scaleMultiplier*pow(logHistory.getAvg(i+windowOffset), expMultiplier)));
+    }
+  }
+  else{
+    for(int i = 0; i < fft.avgSize(); i++){
+      myStrip1.setColor(i, color(hue, (
+        logHistory.getAvg(i+windowOffset)/logHistory2.getAvg(i+windowOffset)-0.75),
+        scaleMultiplier*pow(logHistory.getAvg(i+windowOffset), expMultiplier)));
+    }
   }
 
   colorMode(HSB, 255, 255, 255);
@@ -143,13 +167,16 @@ void draw(){
   text(frameRate, 1, 48);
   text(float(windowOffset), 1, 64);
   text(histogram2.getScale(), 1, 80);
-  
-  // Draws LED strip
-  myStrip1.draw();
 
   if(serialConnected){
-  myStrip1.arduinoWrite(arduinoLED);
-}
+    text("Connected", 1, 96);
+    myStrip1.arduinoWrite(arduinoLED);
+  }
+
+  ellipse(xpos, ypos, 3, 3);
+
+  // Draws LED strip
+  myStrip1.draw();
 
   // Draws histogram
   histogram.draw();
@@ -189,12 +216,15 @@ void mouseWheel(MouseEvent event) {
     }
   else{
 
-    windowOffset += event.getAmount();
-    if(windowOffset < 0){
-      windowOffset = 0;
-    }
-    if(windowOffset + ledStripLength > fft.avgSize()){
-      windowOffset = fft.avgSize() - (ledStripLength);
+    if(fft.avgSize() > ledStripLength){
+
+      windowOffset += event.getAmount();
+      if(windowOffset < 0){
+        windowOffset = 0;
+      }
+      if(windowOffset + ledStripLength > fft.avgSize()){
+        windowOffset = fft.avgSize() - (ledStripLength);
+      }
     }
   }
 }

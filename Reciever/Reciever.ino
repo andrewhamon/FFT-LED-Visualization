@@ -13,7 +13,8 @@
 #define ledStripPin 6
 
 // Initialize LED strip
-Adafruit_NeoPixel myStrip = Adafruit_NeoPixel(stripLength, ledStripPin, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel myStrip = Adafruit_NeoPixel(stripLength, ledStripPin,
+  NEO_GRB + NEO_KHZ800);
 byte n;
 byte k;
 byte colors[3];
@@ -65,5 +66,5 @@ void loop(){
   else{
     digitalWrite(13, LOW);
   }
-  // Empty loop because sketch is entirely serial even driven
+  // Empty loop because sketch is entirely serial event driven
 }

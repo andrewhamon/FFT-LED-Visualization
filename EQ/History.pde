@@ -10,6 +10,7 @@ class History{
   float[][] history;
   float[] current;
   float[] avg;
+  float[] prevAvg;
   int size;
   int time;
   
@@ -24,6 +25,7 @@ class History{
     //doesn't actually contain the average
     //but the running total
     avg = new float[size];
+    prevAvg = new float[size];
   }
   
   //Shift out the oldest entry before shifting in new data
@@ -44,6 +46,9 @@ class History{
   
   //Add a new entry/array
   void addData(float[] tmp){
+    for(int i = 0; i < size; i++){
+      prevAvg[i] = avg[i];
+    }
     if(time > 1){
       shiftHistory();
       for(int i = 0; i < size; i++){
@@ -69,6 +74,15 @@ class History{
     }
   }
 
+  float getPrevAvg(int i){
+    if(time > 1){
+      return prevAvg[i]/time;
+    }
+    else{
+      return current[i];
+    }
+  }
+
   //Return array containing all running averages
   float[] getAvgArray(){
     float[] tmp = new float[size];
@@ -81,5 +95,9 @@ class History{
       }
     }
     return tmp;
+  }
+
+  float getDelta(int i){
+    return (getAvg(i) - getPrevAvg(i));
   }
 }

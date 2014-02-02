@@ -76,9 +76,9 @@ class Strip{
   }
 
   public void arduinoWrite(Serial mySerial){
-    byte eof = byte(254);
-    //254 because the full byte 255 is sent to indicate end of frame transmission
-    colorMode(RGB, 253, 253, 253);
+    byte eof = byte(255);
+    //254 because 255 is sent to indicate end of frame transmission
+    colorMode(RGB, 254, 254, 254);
     byte r;
     byte g;
     byte b;
@@ -90,6 +90,6 @@ class Strip{
       mySerial.write(b);
       mySerial.write(g);
     }
-    mySerial.write(eof); //Signal to arduino that all data for current frame has been sent
+    mySerial.write(eof); //Signal to arduino that all data sent
   }
 }

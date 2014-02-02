@@ -15,6 +15,7 @@
 // :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 class Histogram{
+  boolean mode;
   float[][] corners;
   int size_; //avoid naming things the same as built in functions
   float barWidth;
@@ -34,7 +35,10 @@ class Histogram{
 
   History timeAvg;
   
-  Histogram(float x0, float y0, float x1, float y1, int numBands, float scale, int historyLength){
+  Histogram(float x0, float y0, float x1, float y1, int numBands, float scale,
+    int historyLength){
+
+    mode = true;
 
     //For bottom left corner of each bar
     corners = new float[numBands][2];
@@ -103,31 +107,45 @@ class Histogram{
     ydir /= tmplength;
   }
     
-    public void addData(float[] tmp){
-      timeAvg.addData(tmp);
-    }
+  public void addData(float[] tmp){
+    timeAvg.addData(tmp);
+  }
 
-    public void setScale(float x){
-      scaleFactor = x;
-      if(scaleFactor < 0){
-        posScaleFactor = -1*scaleFactor;
-      }
-    else{
-      posScaleFactor = scaleFactor;
-      }
-    }
+  public History getHistory(){
+    return timeAvg;
+  }
 
-    public float getScale(){
-      return scaleFactor;
+  public void setScale(float x){
+    scaleFactor = x;
+    if(scaleFactor < 0){
+      posScaleFactor = -1*scaleFactor;
     }
-    
-    public void draw(){
-      strokeWeight(barWidth);
-      stroke(hue, 255, 255);
-      for(int i = 0; i < size_; i++){
-        line(corners[i][0], corners[i][1], scaleFactor*timeAvg.getAvg(i)*xdir + corners[i][0], scaleFactor*timeAvg.getAvg(i)*ydir + corners[i][1]);
-      }
+  else{
+    posScaleFactor = scaleFactor;
     }
+  }
+
+  public float getScale(){
+    return scaleFactor;
+  }
+  
+  public void draw(){
+    strokeWeight(barWidth);
+    stroke(hue, 255, 255);
+    for(int i = 0; i < size_; i++){
+      line(
+        corners[i][0], corners[i][1],
+        scaleFactor*timeAvg.getAvg(i)*xdir + corners[i][0],
+        scaleFactor*timeAvg.getAvg(i)*ydir + corners[i][1]);
+    }
+  }
+  public void changeMode(boolean x){
+  mode = x;
+  }
+
+  public void changeMode(){
+    mode = !mode;
+  }
 }
 
 class HistogramWeb extends Histogram{
@@ -135,7 +153,8 @@ class HistogramWeb extends Histogram{
   float[][] points;
   boolean mode;
   
-  HistogramWeb(float x0, float y0, float x1, float y1, int numBands, float scale, int historyLength){
+  HistogramWeb(float x0, float y0, float x1, float y1, int numBands,
+    float scale, int historyLength){
 
     super(x0, y0, x1, y1, numBands, scale, historyLength);
     points = new float[numBands][2];
@@ -168,7 +187,8 @@ class HistogramWeb extends Histogram{
       points[i][1] = scaleFactor*timeAvg.getAvg(i)*ydir + corners[i][1];
       if((i <= windowOffset + ledStripLength && i >= windowOffset)||mode){
         fill(hue, 255, 255, posScaleFactor*timeAvg.getAvg(i)/2);
-        stroke(hue, 2*posScaleFactor*timeAvg.getAvg(i), 255, posScaleFactor*timeAvg.getAvg(i) + 50);
+        stroke(hue, 2*posScaleFactor*timeAvg.getAvg(i), 255,
+          posScaleFactor*timeAvg.getAvg(i) + 50);
       }
       else{
         fill(0,0,0,0);
