@@ -65,9 +65,9 @@ void setup() {
   // Initialize histogram object to display histogram on screen
   // See Histogram.pde to examine Histogram and HistogramWeb Class
   histogram = new HistogramWeb(
-    0.0, height/2.0 + 12, width, height/2.0 + 12, fft.avgSize(), -20.0, 3);
+    0.0, height/2.0 + 16, width, height/2.0 + 16, fft.avgSize(), -20.0, 3);
   histogram2 = new HistogramWeb(
-    0.0, height/2.0 - 12, width, height/2.0 - 12, fft.avgSize(), 20.0, 3);
+    0.0, height/2.0 - 16, width, height/2.0 - 16, fft.avgSize(), 20.0, 3);
   
   // For convenient access throught sketch
   prevSpec = new float[fft.specSize()];
@@ -159,7 +159,7 @@ void draw(){
   stroke(hue, 255, 255);
 
   // Redraw background each frame  
-  background(#000000);
+  background(color(0));
 
   // Debugging
   text(scaleMultiplier, 1, 16);

@@ -36,8 +36,8 @@ void serialEvent(){
     byte x = Serial.read();
 
     // If end-of-frame code recieved
-    if(x == 254){
-      myStrip.setBrightness(64); //The LEDs are quite bright
+    if(x == 255){
+      // myStrip.setBrightness(64); //The LEDs are quite bright
       myStrip.show();
       // Reset counters
       k = 0;
